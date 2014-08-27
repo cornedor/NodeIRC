@@ -1,0 +1,37 @@
+{
+    "enabled":          true,
+
+    "nickName":         "NodeIRC-TestBot",
+    "userName":         "NodeIRC-user",
+    "realName":         "NodeIRC-name",
+
+    "server":           "irc.freenode.org",
+    "port":             6667,
+    "channels":         ["#kevinvdburgt"],
+
+    "floodProtection":  true,
+    "floodDelay":       1000,
+
+    "debug":            false,
+    "showErrors":       false,
+
+    "autoRejoin":       true,
+    "autoConnect":      true,
+
+    "secure":           false,
+    "selfSigned":       false,
+    "certExpired":      false,
+    "sasl":             false,
+    "stripColors":      false,
+    "channelPrefixes":  "&#",
+    "messageSplit":     512,
+
+    "plugins":          [
+                            {
+                                "plugin": "example"
+                            },
+                            {
+                                "plugin": "linkscanner"
+                            }
+                        ]
+}

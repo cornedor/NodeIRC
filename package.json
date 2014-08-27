@@ -1,0 +1,25 @@
+{
+    "name":         "NodeIRC",
+    "description":  "A modular NodeJS IRC Bot framework",
+    "version":      "3.1.2",
+    "author": {
+        "name":     "Kevin van der Burgt",
+        "email":    "mail@kevinvdburgt.com"
+    },
+    "contributors": [
+
+    ],
+    "repository": {
+        "type":     "",
+        "url":      ""
+    },
+    "scripts": {
+
+    },
+    "dependencies": {
+        "irc":          "=0.3.7",
+        "request":      "=2.40.0",
+        "mime-magic":   ""
+    },
+    "license":      "GNU v2"
+}
