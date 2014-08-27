@@ -18,7 +18,12 @@ module.exports = function(bot, configuration) {
     function _downloadFile(url, fileName, maxSize, callback) {
         // First check the header
         request({url: url, method: 'HEAD'}, function(err, data) {
-            if(data.headers['content-length'] > maxSize) {
+            if(err) {
+                callback(false, 'No network');
+                return;
+            }
+
+            if(data.headers && data.headers['content-length'] && data.headers['content-length'] > maxSize) {
                 callback(false, 'Resource size exceeds limit (' + data.headers['content-length'] + ')');
             } else {
                 var file = fs.createWriteStream(fileName),
@@ -79,6 +84,8 @@ module.exports = function(bot, configuration) {
                         _getFileInformation(data, function(err, message) {
                             client.say(to, message);
                         });
+                    } else {
+                        client.say(to, status);
                     }
                 });
             }
