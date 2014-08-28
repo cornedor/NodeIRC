@@ -10,6 +10,8 @@ module.exports = function(bot, configuration) {
 
     var _linkRegExp = configuration.linkRegExp || /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g,
         _titleRegExp = configuration.titleRegExp || /<title>(.*?)<\/title>/i,
+        _limitTitleLength = configuration.limitTitleLength || 128,
+        _limitMultipleRequests = configuration.limitMultipleRequests || 3,
         _maxFileSize = configuration.fileSize || 1024 * 1024 * 8,
         _downloadTimeout = configuration.downloadTimeout || 8000,
         _tmpStorage = configuration.tmpStorage || '/tmp';
@@ -58,7 +60,7 @@ module.exports = function(bot, configuration) {
                     if(mime === 'text/html') {
                         var match = _titleRegExp.exec(data);
                         if(match && match[1]) {
-                            callback(false, 'Title: ' + match[1]);
+                            callback(false, 'Title: ' + match[1].substr(0, _limitTitleLength));
                         } else {
                             callback(false, 'ERROR');
                         }
@@ -75,9 +77,15 @@ module.exports = function(bot, configuration) {
     function _detectLinks(from, to, message) {
         // Only send to channels, ignore private messages.
         if(to.substr(0, 1) === '#') {
+            var counter = 0;
             while(match = _linkRegExp.exec(message)) {
                 var url = match[0],
                     file = _tmpStorage + '/nodebot-linkinspector' + Math.round(Math.random() * 99999);
+
+                counter++;
+                if(counter > _limitMultipleRequests) {
+                    return;
+                }
 
                 _downloadFile(url, file, _maxFileSize, function(status, data) {
                     if(status === true) {
