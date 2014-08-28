@@ -17,6 +17,7 @@ linkscanner | 0.3.2 | Inspects the given URLs and return the webpage title or mi
 nickserv | 1.0.0 | When you bot nickname has been reserved, you can login with this plugin.
 permissions | 0.1.3 | Permission system
 webcommands | 0.0.2 | Custom commands that calls web urls
+Pandorabot | 1.0.0 | Pandora chatbot
 
 Todo
 ---
