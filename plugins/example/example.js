@@ -1,6 +1,6 @@
 module.exports = function(bot, configuration) {
     var client = bot.client,
-        plugin = bot.plugins,
+        plugins = bot.plugins,
         config = bot.config,
         name = bot.name;
 
@@ -23,7 +23,10 @@ module.exports = function(bot, configuration) {
      * This function is called when all plugins are ready to start.
      */
     function initialize() {
-        //console.log('This is an example plugin!');
+        //plugin('permissions').set('USERNAME', 'GROUP', 1337);
+        //plugin('permissions').save();
+        //var p = plugin('permissions');
+        //console.log('P', p);
     };
 
     /**
@@ -34,6 +37,20 @@ module.exports = function(bot, configuration) {
     function onEvent(eventName, arguments) {
         //console.log('ONEVENT', eventName, arguments);
     }
+
+    /**
+     * Call a plugin
+     * @param  {string} name The plugin name
+     * @return {plugin}      The requested plugin
+     */
+    function plugin(name) {
+        for(var i = 0; i < plugins.length; i++) {
+            if(plugins[i].name === name) {
+                return plugins[i].plugin;
+            }
+        }
+        return null;
+    };
 
     return {
         events: events,

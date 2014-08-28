@@ -27,3 +27,7 @@ node_modules
 # All bots, exclude the testbot as reference
 bots/*
 !bots/test.json
+
+# Ignore data files
+data/*
+!data/.gitkeep

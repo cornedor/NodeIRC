@@ -4,7 +4,7 @@ module.exports = function(bot, configuration) {
         fs = require('fs');
 
     var client = bot.client,
-        plugin = bot.plugins,
+        plugins = bot.plugins,
         config = bot.config,
         name = bot.name;
 
@@ -137,6 +137,20 @@ module.exports = function(bot, configuration) {
             _detectLinks(arguments[0], arguments[1], arguments[2]);
         }
     }
+
+    /**
+     * Call a plugin
+     * @param  {string} name The plugin name
+     * @return {plugin}      The requested plugin
+     */
+    function plugin(name) {
+        for(var i = 0; i < plugins.length; i++) {
+            if(plugins[i].name === name) {
+                return plugins[i].plugin;
+            }
+        }
+        return null;
+    };
 
     return {
         events: events,
