@@ -17,6 +17,11 @@ module.exports = function(bot, configuration) {
         _tmpStorage = configuration.tmpStorage || '/tmp';
 
 
+    function _humanReadableFileSize(bytes, power) {
+        var i = Math.floor(Math.log(bytes) / Math.log(power));
+        return (bytes / Math.pow(power, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
+    };
+
     function _downloadFile(url, fileName, maxSize, callback) {
         // First check the header
         request({url: url, method: 'HEAD'}, function(err, data) {
@@ -26,7 +31,7 @@ module.exports = function(bot, configuration) {
             }
 
             if(data.headers && data.headers['content-length'] && data.headers['content-length'] > maxSize) {
-                callback(false, 'Resource size exceeds limit (' + data.headers['content-length'] + ')');
+                callback(false, 'Resource size exceeds limit (' + _humanReadableFileSize(data.headers['content-length'], 1024) + ')');
             } else {
                 var file = fs.createWriteStream(fileName),
                     res = request({url: url}),
@@ -36,7 +41,7 @@ module.exports = function(bot, configuration) {
                     size += data.length;
 
                     if(size > maxSize) {
-                        callback(false, 'Resource size exceeds limit (' + size + ')');
+                        callback(false, 'Resource size exceeds limit (' + _humanReadableFileSize(size, 1024) + ')');
                         res.abort();
                         fs.unlink(fileName);
                         return;
@@ -65,7 +70,7 @@ module.exports = function(bot, configuration) {
                             callback(false, 'ERROR');
                         }
                     } else {
-                        callback(false, 'File type: ' + mime + ', size: ' + (data.length / 1024) + 'KB');
+                        callback(false, 'File type: ' + mime + ', size: ' + _humanReadableFileSize(data.length, 1024));
                     }
 
                     fs.unlink(file);
