@@ -1,12 +1,15 @@
 module.exports = function(bot, configuration) {
+    var fs = require('fs');
+
     var client = bot.client,
-        plugin = bot.plugins,
+        plugins = bot.plugins,
         config = bot.config,
         name = bot.name;
 
     var _permissionsFile = configuration.permissionsFile || 'data/permissions.json',
-        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 120;
+        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 5;
 
+    var _ready = false;
     var _permissions = {
         "perm": { }
     };
@@ -23,8 +26,17 @@ module.exports = function(bot, configuration) {
     };
 
     function load() {
-        var data = fs.readFileSync(_permissionsFile);
-        _permissions = JSON.parse(data);
+        if(fs.existsSync(_permissionsFile)) {
+            var data = fs.readFileSync(_permissionsFile).toString();
+
+            try {
+                _permissions = JSON.parse(data);
+            } catch(e) {
+                fs.writeFileSync(_permissionsFile + '.broken_' + new Date().getTime(), data);
+                console.log('PLUGIN::PERMISSIONS:ERROR');
+                console.log('Detected a broken file, saving old file. And create a new file!');
+            }
+        }
     };
 
     function get(username, group) {
@@ -75,6 +87,20 @@ module.exports = function(bot, configuration) {
     function onEvent(eventName, arguments) {
         //console.log('ONEVENT', eventName, arguments);
     }
+
+    /**
+     * Call a plugin
+     * @param  {string} name The plugin name
+     * @return {plugin}      The requested plugin
+     */
+    function plugin(name) {
+        for(var i = 0; i < plugins.length; i++) {
+            if(plugins[i].name === name) {
+                return plugins[i].plugin;
+            }
+        }
+        return null;
+    };
 
     return {
         save: save,
