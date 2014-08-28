@@ -34,7 +34,7 @@
                                 "plugin": "linkscanner"
                             },
                             {
-                                "plugin": "permissions"
+                                "plugin": "webcommands"
                             }
                         ]
 }

@@ -1,56 +1,63 @@
 module.exports = function(bot, configuration) {
-    var fs = require('fs');
+    var fs = require('fs');    
 
     var client = bot.client,
         plugins = bot.plugins,
         config = bot.config,
         name = bot.name;
 
-    var _permissionsFile = configuration.permissionsFile || 'data/permissions.json',
-        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 120;
+    var _webCommandFile = configuration.webCommandFile || 'data/webcommands.json',
+        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 120,
+        _commandTrigger = configuration.commandTrigger || '!';
 
-    var _ready = false;
-    var _permissions = {
-        "perm": { }
+    var _commands = {
+        'command': [],
+        'ttt': [],
+        'kevin': []
     };
 
-    function save() {
+    function _save() {
         fs.writeFile(
-            _permissionsFile,
-            JSON.stringify(_permissions),
+            _webCommandFile,
+            JSON.stringify(_commands),
             function(err) {
                 if(err) {
-                    console.log('[PLUGIN::PERMISSIONS::ERROR]', err);
+                    console.log('[PLUGIN::WEBCOMMANDS::ERROR]', err);
                 }
             });
     };
 
-    function load() {
-        if(fs.existsSync(_permissionsFile)) {
-            var data = fs.readFileSync(_permissionsFile).toString();
+    function _load() {
+        if(fs.existsSync(_webCommandFile)) {
+            var data = fs.readFileSync(_webCommandFile).toString();
 
             try {
                 _permissions = JSON.parse(data);
             } catch(e) {
-                fs.writeFileSync(_permissionsFile + '.broken_' + new Date().getTime(), data);
-                console.log('PLUGIN::PERMISSIONS:ERROR');
+                fs.writeFileSync(_webCommandFile + '.broken_' + new Date().getTime(), data);
+                console.log('PLUGIN::WEBCOMMANDS:ERROR');
                 console.log('Detected a broken file, saving old file. And create a new file!');
             }
         }
     };
 
-    function get(username, group) {
-        if(!_permissions.perm[group]) {
-            return null;
-        }
-        return _permissions.perm[group][username] || null;
-    };
+    function _checkCommand(from, to, message) {
+        // Only send to channels, ignore private messages.
+        if(to.substr(0, 1) === '#' && message.substr(0, 1) === _commandTrigger) {
+            var cmd = message.substr(1).match(/[^\s"]+|"([^"]*)"/gi),
+                index = -1;
+            if(cmd[0] === 'webcommand') {
+                if(cmd[1] === 'add') {
 
-    function set(username, group, level) {
-        if(!_permissions.perm[group]) {
-            _permissions.perm[group] = {};
+                } else if(cmd[1] === 'del') {
+
+                } else if(cmd[1] === 'list') {
+
+                }
+            } else if(index = _commands.indexOf(cmd[1])) {
+                console.log(index);
+            }
         }
-        _permissions.perm[group][username] = level;
     };
 
     /**
@@ -65,17 +72,17 @@ module.exports = function(bot, configuration) {
         // 'ctcp-version','nick','invite','+mode','-mode','whois',
         // 'channellist_start','channellist_item','channellist','raw',
         // 'error'
-        return [];
+        return ['message'];
     };
 
     /**
      * This function is called when all plugins are ready to start.
      */
     function initialize() {
-        load();
+        _load();
 
         setInterval(function() {
-            save();
+            _save();
         }, _autoSaveTimer);
     };
 
@@ -85,7 +92,9 @@ module.exports = function(bot, configuration) {
      * @param  {array}  arguments All event arguments
      */
     function onEvent(eventName, arguments) {
-        //console.log('ONEVENT', eventName, arguments);
+        if(eventName === 'message') {
+            _checkCommand(arguments[0], arguments[1], arguments[2]);
+        }
     }
 
     /**
@@ -103,11 +112,6 @@ module.exports = function(bot, configuration) {
     };
 
     return {
-        save: save,
-        load: load,
-        get: get,
-        set: set,
-
         events: events,
         initialize: initialize,
         onEvent: onEvent
