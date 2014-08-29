@@ -18,6 +18,8 @@ module.exports = function(bot, configuration) {
             request(botApi, function(err, response, body) {
                 if(!err && response.statusCode === 200) {
                     var json = JSON.parse(x2j.toJson(body, {sanitize: false}));
+                    //Filter html tags
+                    var response = json.result.that.replace(/<(?:.|\n)*?>/gm, '');
                     client.say(to, from + ': ' + json.result.that);
                 }
             });
