@@ -18,6 +18,7 @@ nickserv | 1.0.0 | When you bot nickname has been reserved, you can login with t
 permissions | 0.1.3 | Permission system
 webcommands | 0.0.2 | Custom commands that calls web urls
 Pandorabot | 1.0.0 | Pandora chatbot
+stopwatch | 1.0.0 | Stopwatch plugin for keeping track of time
 
 Todo
 ---
