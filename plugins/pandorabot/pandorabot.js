@@ -18,7 +18,9 @@ module.exports = function(bot, configuration) {
             request(botApi, function(err, response, body) {
                 if(!err && response.statusCode === 200) {
                     var json = JSON.parse(x2j.toJson(body, {sanitize: false}));
-                    client.say(to, from + ': ' + json.result.that);
+                    //Filter html tags and replace them with spaces
+                    var response = json.result.that.replace(/<(?:.|\n)*?>/gm, ' ');
+                    client.say(to, from + ': ' + response);
                 }
             });
         }
