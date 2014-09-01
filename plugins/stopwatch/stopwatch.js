@@ -6,6 +6,14 @@ module.exports = function(bot, configuration) {
         stopwatches = {},
         _commandTrigger = configuration.commandTrigger || '!';
 
+    function pad(num, size) {
+        var s = String(num);
+        if(typeof(size) !== "number"){size = 2;}
+
+        while (s.length < size) {s = "0" + s;}
+        return s;
+    }
+
     function _parseMessage(from, to, message) {
         if(to.substr(0, 1) === '#' && message.substr(0, 1) === _commandTrigger) {
             var cmd = message.substr(1).match(/[^\s"]+|"([^"]*)"/gi),
@@ -47,7 +55,7 @@ module.exports = function(bot, configuration) {
                                     StartTime:new Date().getTime()
                                 };
 
-                                sayreturn = "The stopwatch stopped at: " + hours + ":" + mins + ":" + secs;
+                                sayreturn = "The stopwatch stopped at: " + pad(hours) + ":" + pad(mins) + ":" + pad(secs);
                             }
                         }
                     break;
@@ -61,7 +69,7 @@ module.exports = function(bot, configuration) {
                                 mins = Math.floor((diff % 36e5) / 6e4),
                                 secs = Math.floor((diff % 6e4) / 1000);
 
-                                sayreturn = "The stopwatch is at: " + hours + ":" + mins + ":" + secs;
+                                sayreturn = "The stopwatch is at: " + pad(hours) + ":" + pad(mins) + ":" + pad(secs);
                             }
                         }
                     break;
