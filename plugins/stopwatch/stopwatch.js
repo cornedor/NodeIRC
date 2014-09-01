@@ -6,7 +6,7 @@ module.exports = function(bot, configuration) {
         stopwatches = {},
         _commandTrigger = configuration.commandTrigger || '!';
 
-    function pad(num, size) {
+    function _pad(num, size) {
         var s = String(num);
         if(typeof(size) !== 'number'){size = 2;}
 
@@ -14,14 +14,14 @@ module.exports = function(bot, configuration) {
         return s;
     }
 
-    function printTime(startTime) {
+    function _printTime(startTime) {
         var now = new Date().getTime(),
         diff = now - startTime,
         hours = Math.floor(diff / 36e5),
         mins = Math.floor((diff % 36e5) / 6e4),
         secs = Math.floor((diff % 6e4) / 1000);
 
-        return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+        return _pad(hours) + ':' + _pad(mins) + ':' + _pad(secs);
     }
 
     function _parseMessage(from, to, message) {
@@ -54,7 +54,7 @@ module.exports = function(bot, configuration) {
                         sayreturn = 'You need to start your stopwatch first!';
                         if(nick in stopwatches){
                             if(stopwatches[nick].Running == true){
-                                sayreturn = 'The stopwatch stopped at: ' + printTime(stopwatches[nick].StartTime);
+                                sayreturn = 'The stopwatch stopped at: ' + _printTime(stopwatches[nick].StartTime);
 
                                 stopwatches[nick] = {
                                     Running:false,
@@ -67,7 +67,7 @@ module.exports = function(bot, configuration) {
                         sayreturn = 'You have no stopwatch running!';
                         if(nick in stopwatches){
                             if(stopwatches[nick].Running == true){
-                                sayreturn = 'The stopwatch is at: ' + printTime(stopwatches[nick].StartTime);
+                                sayreturn = 'The stopwatch is at: ' + _printTime(stopwatches[nick].StartTime);
                             }
                         }
                     break;
