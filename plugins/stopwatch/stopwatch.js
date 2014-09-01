@@ -8,10 +8,20 @@ module.exports = function(bot, configuration) {
 
     function pad(num, size) {
         var s = String(num);
-        if(typeof(size) !== "number"){size = 2;}
+        if(typeof(size) !== 'number'){size = 2;}
 
-        while (s.length < size) {s = "0" + s;}
+        while (s.length < size) {s = '0' + s;}
         return s;
+    }
+
+    function printTime(startTime) {
+        var now = new Date().getTime(),
+        diff = now - startTime,
+        hours = Math.floor(diff / 36e5),
+        mins = Math.floor((diff % 36e5) / 6e4),
+        secs = Math.floor((diff % 6e4) / 1000);
+
+        return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
     }
 
     function _parseMessage(from, to, message) {
@@ -20,16 +30,16 @@ module.exports = function(bot, configuration) {
                 nick = encodeURIComponent(from),
                 sayreturn = '';
 
-            if(cmd[0] === "stopwatch" || cmd[0] == "sw"){
+            if(cmd[0] === 'stopwatch' || cmd[0] == 'sw'){
                 switch(cmd[1]){
                     case 'start':
                         if(nick in stopwatches){
                             if(stopwatches[nick].Running == true){
-                                sayreturn = "Your stopwatch is already running!";
+                                sayreturn = 'Your stopwatch is already running!';
                             }else{
                                 stopwatches[nick].StartTime = new Date().getTime();
                                 stopwatches[nick].Running = true;
-                                sayreturn = "Your stopwatch has started!";
+                                sayreturn = 'Your stopwatch has started!';
                             }
                         }else{
                             stopwatches[nick] = {
@@ -37,39 +47,27 @@ module.exports = function(bot, configuration) {
                                 StartTime:new Date().getTime()
                             };
 
-                            sayreturn = "Your stopwatch has started!";
+                            sayreturn = 'Your stopwatch has started!';
                         }
                     break;
                     case 'stop':
-                        sayreturn = "You need to start your stopwatch first!";
+                        sayreturn = 'You need to start your stopwatch first!';
                         if(nick in stopwatches){
                             if(stopwatches[nick].Running == true){
-                                var now = new Date().getTime(),
-                                diff = now - stopwatches[nick].StartTime,
-                                hours = Math.floor(diff / 36e5),
-                                mins = Math.floor((diff % 36e5) / 6e4),
-                                secs = Math.floor((diff % 6e4) / 1000);
+                                sayreturn = 'The stopwatch stopped at: ' + printTime(stopwatches[nick].StartTime);
 
                                 stopwatches[nick] = {
                                     Running:false,
                                     StartTime:new Date().getTime()
                                 };
-
-                                sayreturn = "The stopwatch stopped at: " + pad(hours) + ":" + pad(mins) + ":" + pad(secs);
                             }
                         }
                     break;
                     case 'status':
-                        sayreturn = "You have no stopwatch running!";
+                        sayreturn = 'You have no stopwatch running!';
                         if(nick in stopwatches){
                             if(stopwatches[nick].Running == true){
-                                var now = new Date().getTime(),
-                                diff = now - stopwatches[nick].StartTime,
-                                hours = Math.floor(diff / 36e5),
-                                mins = Math.floor((diff % 36e5) / 6e4),
-                                secs = Math.floor((diff % 6e4) / 1000);
-
-                                sayreturn = "The stopwatch is at: " + pad(hours) + ":" + pad(mins) + ":" + pad(secs);
+                                sayreturn = 'The stopwatch is at: ' + printTime(stopwatches[nick].StartTime);
                             }
                         }
                     break;
