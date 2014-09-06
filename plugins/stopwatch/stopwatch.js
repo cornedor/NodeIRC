@@ -12,7 +12,7 @@ module.exports = function(bot, configuration) {
     };
 
     var _stopwatchFile = configuration.stopwatcheFile || 'data/stopwatch.js',
-        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 5,
+        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 120,
         _commandTrigger = configuration.commandTrigger || '!';
 
     function _save() {
