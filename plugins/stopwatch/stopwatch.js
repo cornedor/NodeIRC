@@ -1,81 +1,116 @@
 module.exports = function(bot, configuration) {
+    var fs = require('fs');
+
     var client = bot.client,
         plugins = bot.plugins,
         config = bot.config,
-        name = bot.name,
-        stopwatches = {},
+        name = bot.name;
+
+    var _stopwatch = {
+        stopwatches: {},
+        timers: {}
+    };
+
+    var _stopwatchFile = configuration.stopwatcheFile || 'data/stopwatch.js',
+        _autoSaveTimer = configuration.autoSaveTimer || 1000 * 5,
         _commandTrigger = configuration.commandTrigger || '!';
 
-    function _pad(num, size) {
-        var s = String(num);
-        if(typeof(size) !== 'number'){size = 2;}
+    function _save() {
+        fs.writeFile(
+            _stopwatchFile,
+            JSON.stringify(_stopwatch),
+            function(err) {
+                if(err) {
+                    console.log('[PLUGIN::STOPWATCH::ERROR]', err);
+                }
+            });
+    };
 
-        while (s.length < size) {s = '0' + s;}
-        return s;
+    function _load() {
+        if(fs.existsSync(_stopwatchFile)) {
+            var data = fs.readFileSync(_stopwatchFile).toString();
+
+            try {
+                _stopwatchFile = JSON.parse(data);
+            } catch(e) {
+                fs.writeFileSync(_stopwatchFile + '.broken_' + new Date().getTime(), data);
+                console.log('PLUGIN::STOPWATCH:ERROR');
+                console.log('Detected a broken file, save old file and create a new file!');
+            }
+        }
+    };
+
+    function _mktime(seconds) {
+        function pad(num, size) {
+            var s = String(num);
+            if(typeof(size) !== 'number') { size = 2; }
+            while(s.length < size) { s = '0' + s; }
+            return s;
+        }
+
+        var h = pad(Math.floor((seconds / 36e5))),
+            m = pad(Math.floor((seconds % 36e5) / 6e4)),
+            s = pad(Math.floor((seconds % 6e4) / 1000));
+
+        return h + ':' + m + ':' + s;
     }
 
-    function _printTime(startTime) {
-        var now = new Date().getTime(),
-        diff = now - startTime,
-        hours = Math.floor(diff / 36e5),
-        mins = Math.floor((diff % 36e5) / 6e4),
-        secs = Math.floor((diff % 6e4) / 1000);
-
-        return _pad(hours) + ':' + _pad(mins) + ':' + _pad(secs);
-    }
-
-    function _parseMessage(from, to, message) {
-        if(to.substr(0, 1) === '#' && message.substr(0, 1) === _commandTrigger) {
+    function _checkCommand(from, to, message) {
+        if(message.substr(0, 1) === _commandTrigger) {
             var cmd = message.substr(1).match(/[^\s"]+|"([^"]*)"/gi),
-                nick = encodeURIComponent(from),
-                sayreturn = '';
+                tok = to + '|' + from,
+                msg = '';
 
-            if(cmd[0] === 'stopwatch' || cmd[0] == 'sw'){
-                switch(cmd[1]){
+            if(cmd[0] === 'stopwatch' || cmd[0] === 'sw') {
+                switch(cmd[1]) {
                     case 'start':
-                        if(nick in stopwatches){
-                            if(stopwatches[nick].Running == true){
-                                sayreturn = 'Your stopwatch is already running!';
-                            }else{
-                                stopwatches[nick].StartTime = new Date().getTime();
-                                stopwatches[nick].Running = true;
-                                sayreturn = 'Your stopwatch has started!';
-                            }
-                        }else{
-                            stopwatches[nick] = {
-                                Running:true,
-                                StartTime:new Date().getTime()
-                            };
-
-                            sayreturn = 'Your stopwatch has started!';
+                        if(_stopwatch.stopwatches.hasOwnProperty(tok) === false) {
+                            _stopwatch.stopwatches[tok] = {start: new Date().getTime()};
+                            msg = 'Your stopwatch has started!';
+                        } else {
+                            msg = 'Your stopwatch is already running!';
                         }
-                    break;
+                        break;
+
                     case 'stop':
-                        sayreturn = 'You need to start your stopwatch first!';
-                        if(nick in stopwatches){
-                            if(stopwatches[nick].Running == true){
-                                sayreturn = 'The stopwatch stopped at: ' + _printTime(stopwatches[nick].StartTime);
+                        if(_stopwatch.stopwatches.hasOwnProperty(tok) === false) {
+                            msg = 'You need to start your stopwatch first!';
+                        } else {
+                            var time = _stopwatch.stopwatches[tok].start;
+                            msg = 'Your stopwatch stopped at: ' + _mktime(new Date().getTime() - time);
+                            delete _stopwatch.stopwatches[tok];
+                        }
+                        break;
 
-                                stopwatches[nick] = {
-                                    Running:false,
-                                    StartTime:new Date().getTime()
-                                };
-                            }
-                        }
-                    break;
                     case 'status':
-                        sayreturn = 'You have no stopwatch running!';
-                        if(nick in stopwatches){
-                            if(stopwatches[nick].Running == true){
-                                sayreturn = 'The stopwatch is at: ' + _printTime(stopwatches[nick].StartTime);
-                            }
+                        if(_stopwatch.stopwatches.hasOwnProperty(tok) === false) {
+                            msg = 'You dont have a stopwatch running!';
+                        } else {
+                            var time = _stopwatch.stopwatches[tok].start;
+                            msg = 'Your stopwatch stopped at: ' + _mktime(new Date().getTime() - time); 
                         }
-                    break;
+                        break;
+
+                    default:
+                        break;
+                }
+            } else if(cmd[0] === 'timer') {
+                msg = 'This feature is unfinished.';
+                switch(cmd[1]) {
+                    case 'set':
+                        break;
+
+                    case 'stop':
+                        break;
+
+                    case 'list':
+                        break;
                 }
             }
 
-            if(sayreturn.length > 0)
-                client.say(to, from + ': ' + sayreturn);
+            if(msg.length > 0) {
+                client.say(to, from + ': ' + msg);
+            }
         }
     };
 
@@ -98,7 +133,11 @@ module.exports = function(bot, configuration) {
      * This function is called when all plugins are ready to start.
      */
     function initialize() {
+        _load();
 
+        setInterval(function() {
+            _save();
+        }, _autoSaveTimer);
     };
 
     /**
@@ -108,7 +147,7 @@ module.exports = function(bot, configuration) {
      */
     function onEvent(eventName, arguments) {
         if(eventName === 'message') {
-            _parseMessage(arguments[0], arguments[1], arguments[2]);
+            _checkCommand(arguments[0], arguments[1], arguments[2]);
         }
     }
 
