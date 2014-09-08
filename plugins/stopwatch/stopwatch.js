@@ -31,7 +31,7 @@ module.exports = function(bot, configuration) {
             var data = fs.readFileSync(_stopwatchFile).toString();
 
             try {
-                _stopwatchFile = JSON.parse(data);
+                _stopwatch = JSON.parse(data);
             } catch(e) {
                 fs.writeFileSync(_stopwatchFile + '.broken_' + new Date().getTime(), data);
                 console.log('PLUGIN::STOPWATCH:ERROR');
