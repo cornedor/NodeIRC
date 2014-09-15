@@ -65,7 +65,7 @@ module.exports = function(bot, configuration) {
                     if(mime === 'text/html') {
                         var match = _titleRegExp.exec(data);
                         if(match && match[1]) {
-                            callback(false, 'Title: ' + match[1].substr(0, _limitTitleLength));
+                            callback(false, 'Title: ' + decodeURIComponent(match[1].substr(0, _limitTitleLength)));
                         } else {
                             callback(false, 'ERROR');
                         }
