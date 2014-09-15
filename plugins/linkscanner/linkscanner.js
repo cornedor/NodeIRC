@@ -1,7 +1,8 @@
 module.exports = function(bot, configuration) {
     var request = require('request'),
         mime = require('mime-magic'),
-        fs = require('fs');
+        fs = require('fs'),
+        Entities = require('html-entities').AllHtmlEntities;
 
     var client = bot.client,
         plugins = bot.plugins,
@@ -14,7 +15,8 @@ module.exports = function(bot, configuration) {
         _limitMultipleRequests = configuration.limitMultipleRequests || 3,
         _maxFileSize = configuration.fileSize || 1024 * 1024 * 8,
         _downloadTimeout = configuration.downloadTimeout || 8000,
-        _tmpStorage = configuration.tmpStorage || '/tmp';
+        _tmpStorage = configuration.tmpStorage || '/tmp',
+        _entities = new Entities();
 
 
     function _humanReadableFileSize(bytes, power) {
@@ -65,7 +67,7 @@ module.exports = function(bot, configuration) {
                     if(mime === 'text/html') {
                         var match = _titleRegExp.exec(data);
                         if(match && match[1]) {
-                            callback(false, 'Title: ' + decodeURIComponent(match[1].substr(0, _limitTitleLength)));
+                            callback(false, 'Title: ' + _entities.decode(match[1].substr(0, _limitTitleLength)));
                         } else {
                             callback(false, 'ERROR');
                         }
