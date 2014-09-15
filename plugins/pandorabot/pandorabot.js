@@ -18,11 +18,18 @@ module.exports = function(bot, configuration) {
             request(botApi, function(err, response, body) {
                 if(!err && response.statusCode === 200) {
                     var json = JSON.parse(x2j.toJson(body, {sanitize: false}));
-
-                    if(json.result.status > 0) {
-                        var response = '[ERROR] Input status: ' + json.result.status;
+                    var response = '';                    
+                    
+                    if(json.result === undefined || json.result.that === undefined) {
+                        if(json.result !== undefined && json.result.status !== undefined)
+                            response = '[ERROR] Input status: ' + json.result.status;
+                        else
+                            response = '[UNKNOWN ERROR]';
+                    } if(json.result !== undefined && typeof json.result.that === "object") {
+                      response = 'dot dot dot dot dot dot dot dot';
                     } else {
-                        var response = json.result.that.replace(/<(?:.|\n)*?>/gm, ' ');
+                        console.log(json.result);
+                        response = json.result.that.replace(/<(?:.|\n)*?>/gm, ' ');
                     }
                     client.say(to, from + ': ' + response);
                 }
