@@ -22,6 +22,7 @@ var add = function(botName, configuration) {
     var client = new irc.Client(configuration.server || 'irg.freenode.org', configuration.nickName || 'NodeIRC-' + botName, {
         userName:               configuration.userName              || 'NodeIRC-' + botName,
         realName:               configuration.realName              || 'NodeIRC-' + botName,
+        password:               configuration.password              || null,
         port:                   configuration.port                  || 6667,
         debug:                  configuration.debug                 || false,
         showErrors:             configuration.showErrors            || false,

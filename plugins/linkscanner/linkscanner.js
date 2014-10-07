@@ -26,9 +26,11 @@ module.exports = function(bot, configuration) {
 
     function _downloadFile(url, fileName, maxSize, callback) {
         // First check the header
-        request({url: url, method: 'HEAD'}, function(err, data) {
+        console.log('[PLUGIN::LINKSCANNER] Fetching url: ' + url);
+        request({url: url, method: 'HEAD', followAllRedirects: true}, function(err, data) {
             if(err) {
-                callback(false, 'No network');
+                console.log(err);
+                callback(false, err);
                 return;
             }
 
@@ -69,7 +71,7 @@ module.exports = function(bot, configuration) {
                         if(match && match[1]) {
                             callback(false, 'Title: ' + _entities.decode(match[1].substr(0, _limitTitleLength)));
                         } else {
-                            callback(false, 'ERROR');
+                            callback(false, 'File type: ' + mime + ', size: ' + _humanReadableFileSize(data.length, 1024));
                         }
                     } else {
                         callback(false, 'File type: ' + mime + ', size: ' + _humanReadableFileSize(data.length, 1024));
@@ -100,7 +102,7 @@ module.exports = function(bot, configuration) {
                             client.say(to, message);
                         });
                     } else {
-                        client.say(to, status);
+                        client.say(to, data);
                     }
                 });
             }

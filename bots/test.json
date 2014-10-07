@@ -1,8 +1,9 @@
 {
-    "enabled":          true,
+    "enabled":          false,
 
     "nickName":         "NodeIRC-TestBot",
     "userName":         "NodeIRC-user",
+    "password":         null,
     "realName":         "NodeIRC-name",
 
     "server":           "irc.freenode.org",
