@@ -38,6 +38,9 @@ module.exports = function(bot, configuration) {
         var msg = '';
         var count = 0;
 
+        if(configuration.channels !== undefined &&
+            configuration.channels.indexOf(to) === -1) return;
+
         for(var i = 0; i < corrections.length; i++) {
             var correction = corrections[i];
             for(var j = 0; j < correction.from.length; j++) {
